@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -12,7 +13,8 @@ namespace FaxAPI_CSharpConsole
 {
     public class FaxOperations
     {
-        public void SendFaxSimpleModel(){
+        public void SendFaxSimpleModel()
+        {
 
             string filePath = @"C:\Users\Snow Attitudes\Documents\Visual Studio 2013\Projects\FaxAPI-CSharpDesktopSamples\FaxAPI-CSharpConsole\Fax Docs\";
             string fileName1 = filePath + "TestFaxFromBulgaria.txt";
@@ -76,6 +78,7 @@ namespace FaxAPI_CSharpConsole
                     JavaScriptSerializer parser = new JavaScriptSerializer();
                     var response = parser.Deserialize<SendFaxResponse>(result);
                     Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", response.m_Item1, response.m_Item2);
+                    Console.WriteLine("Please strike any key");
                     Console.ReadLine();
                 }
                 else
@@ -169,9 +172,10 @@ namespace FaxAPI_CSharpConsole
                     var methodFile = new UploadFileWithKeyValuesPair();
                     string result = methodFile.UploadFilesWithParams(FaxUrl, files, paramValues, clientRequestHeaders);
                     //add System.Web.Extensions
-                    
+
                     var response = parser.Deserialize<SendFaxResponse>(result);
                     Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", response.m_Item1, response.m_Item2);
+                    Console.WriteLine("Please strike any key");
                     Console.ReadLine();
                 }
                 else
@@ -184,5 +188,324 @@ namespace FaxAPI_CSharpConsole
 
             }
         }
+        public void GetFaxStatus(string FAX_ID)
+        {
+            var accessToken = new AccessToken();
+            string getTokenUrl = @"https://api.onlinefaxes.com/v2/oauth2/token";
+            string ACCESS_TOKEN = accessToken.GetAccessToken(getTokenUrl);
+            UTF8Encoding utf8Encoder = new UTF8Encoding();
+            //var encodedACCESS_TOKEN = utf8Encoder.
+
+            if (ACCESS_TOKEN != null)
+            {
+                var oauthHeader = new NameValueCollection
+                    {
+                        { "Authorization", @"ofx " + ACCESS_TOKEN }
+                    };
+                string faxId = FAX_ID;
+                string queryString = "faxId=" + faxId;
+                string encodedQueryString = HttpUtility.UrlEncode(queryString);
+                string FaxUrl = @"https://api.onlinefaxes.com/v2/fax/async/getfaxstatus?" + queryString;
+
+                var request = WebRequest.Create(FaxUrl);
+                request.Headers.Add(oauthHeader);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Method = "POST";
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] buffer = encoding.GetBytes(queryString);
+                request.ContentLength = buffer.Length;
+
+                using (var requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                using (var httpResponse = (HttpWebResponse)request.GetResponse())
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        var dataStream = httpResponse.GetResponseStream();
+                        var streamReader = new StreamReader(dataStream);
+                        var result = streamReader.ReadToEnd();
+
+                        JavaScriptSerializer parser = new JavaScriptSerializer();
+
+                        var data = parser.Deserialize<ResponseStatus>(result);
+                        Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", data.Status, faxId);
+                        Console.WriteLine("Please strike any key");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Internal Server Error");
+                        Console.ReadLine();
+                    }
+
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Access Token is not valid. Please try again or get access token with valid Id");
+                Console.ReadLine();
+            }
+
+        }
+        public void GetFaxDetail(string FAX_ID)
+        {
+            var accessToken = new AccessToken();
+            string getTokenUrl = @"https://api.onlinefaxes.com/v2/oauth2/token";
+            string ACCESS_TOKEN = accessToken.GetAccessToken(getTokenUrl);
+            UTF8Encoding utf8Encoder = new UTF8Encoding();
+            //var encodedACCESS_TOKEN = utf8Encoder.
+
+            if (ACCESS_TOKEN != null)
+            {
+                var oauthHeader = new NameValueCollection
+                    {
+                        { "Authorization", @"ofx " + ACCESS_TOKEN }
+                    };
+                string faxId = FAX_ID;
+                string queryString = "faxId=" + faxId;
+                string encodedQueryString = HttpUtility.UrlEncode(queryString);
+                string FaxUrl = @"https://api.onlinefaxes.com/v2/fax/async/getfaxdetail?" + queryString;
+
+                var request = WebRequest.Create(FaxUrl);
+                request.Headers.Add(oauthHeader);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Method = "POST";
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] buffer = encoding.GetBytes(queryString);
+                request.ContentLength = buffer.Length;
+
+                using (var requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                using (var httpResponse = (HttpWebResponse)request.GetResponse())
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        var dataStream = httpResponse.GetResponseStream();
+                        var streamReader = new StreamReader(dataStream);
+                        var result = streamReader.ReadToEnd();
+
+                        JavaScriptSerializer parser = new JavaScriptSerializer();
+
+                        var data = result;
+                        Console.WriteLine("Fax sent with Id of : {0} and detail of \n {1} ", faxId, data);
+                        Console.WriteLine("Please strike any key");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Internal Server Error");
+                        Console.ReadLine();
+                    }
+
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Access Token is not valid. Please try again or get access token with valid Id");
+                Console.ReadLine();
+            }
+
+        }
+        public void DownloadFax(string FAX_ID)
+        {
+            var accessToken = new AccessToken();
+            string getTokenUrl = @"https://api.onlinefaxes.com/v2/oauth2/token";
+            string ACCESS_TOKEN = accessToken.GetAccessToken(getTokenUrl);
+            UTF8Encoding utf8Encoder = new UTF8Encoding();
+            //var encodedACCESS_TOKEN = utf8Encoder.
+
+            if (ACCESS_TOKEN != null)
+            {
+                var oauthHeader = new NameValueCollection
+                    {
+                        { "Authorization", @"ofx " + ACCESS_TOKEN }
+                    };
+                string faxId = FAX_ID;
+                string queryString = "faxId=" + faxId;
+                string encodedQueryString = HttpUtility.UrlEncode(queryString);
+                string FaxUrl = @"https://api.onlinefaxes.com/v2/fax/async/downloadfaxfile?" + queryString;
+
+                var request = WebRequest.Create(FaxUrl);
+                request.Headers.Add(oauthHeader);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Method = "POST";
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] buffer = encoding.GetBytes(queryString);
+                request.ContentLength = buffer.Length;
+
+                using (var requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                using (var httpResponse = (HttpWebResponse)request.GetResponse())
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        var dataStream = httpResponse.GetResponseStream();
+                        var streamReader = new StreamReader(dataStream);
+                        var result = streamReader.ReadToEnd();
+
+                        JavaScriptSerializer parser = new JavaScriptSerializer();
+
+                        var data = parser.Deserialize<ResponseStatus>(result);
+                        Console.WriteLine("Download path for fax id of {0}: {1} ", faxId, data.Status);
+                        Console.WriteLine("Please strike any key");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Internal Server Error");
+                        Console.ReadLine();
+                    }
+
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Access Token is not valid. Please try again or get access token with valid Id");
+                Console.ReadLine();
+            }
+
+        }
+        public void DeleteFax(string FAX_ID)
+        {
+            var accessToken = new AccessToken();
+            string getTokenUrl = @"https://api.onlinefaxes.com/v2/oauth2/token";
+            string ACCESS_TOKEN = accessToken.GetAccessToken(getTokenUrl);
+            UTF8Encoding utf8Encoder = new UTF8Encoding();
+            //var encodedACCESS_TOKEN = utf8Encoder.
+
+            if (ACCESS_TOKEN != null)
+            {
+                var oauthHeader = new NameValueCollection
+                    {
+                        { "Authorization", @"ofx " + ACCESS_TOKEN }
+                    };
+                string faxId = FAX_ID;
+                string queryString = "faxId=" + faxId;
+                string encodedQueryString = HttpUtility.UrlEncode(queryString);
+                string FaxUrl = @"https://api.onlinefaxes.com/v2/fax/async/deletefax?" + queryString;
+
+                var request = WebRequest.Create(FaxUrl);
+                request.Headers.Add(oauthHeader);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Method = "POST";
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] buffer = encoding.GetBytes(queryString);
+                request.ContentLength = buffer.Length;
+
+                using (var requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                using (var httpResponse = (HttpWebResponse)request.GetResponse())
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        var dataStream = httpResponse.GetResponseStream();
+                        var streamReader = new StreamReader(dataStream);
+                        var result = streamReader.ReadToEnd();
+
+                        JavaScriptSerializer parser = new JavaScriptSerializer();
+
+                        var data = parser.Deserialize<ResponseStatus>(result);
+                        Console.WriteLine("Status deletion for fax id of {0}: {1} ", faxId, data.Status);
+                        Console.WriteLine("Please strike any key");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Internal Server Error");
+                        Console.ReadLine();
+                    }
+
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Access Token is not valid. Please try again or get access token with valid Id");
+                Console.ReadLine();
+            }
+
+        }
+        public void GetFaxList(string FOLDER_ID, bool IS_DOWNLOADED)
+        {
+            var accessToken = new AccessToken();
+            string getTokenUrl = @"https://api.onlinefaxes.com/v2/oauth2/token";
+            string ACCESS_TOKEN = accessToken.GetAccessToken(getTokenUrl);
+            UTF8Encoding utf8Encoder = new UTF8Encoding();
+            //var encodedACCESS_TOKEN = utf8Encoder.
+
+            if (ACCESS_TOKEN != null)
+            {
+                var oauthHeader = new NameValueCollection
+                    {
+                        { "Authorization", @"ofx " + ACCESS_TOKEN }
+                    };
+                string folderId = FOLDER_ID;
+                bool isDownloaded = IS_DOWNLOADED;
+                string queryString = "folderId=" + folderId + "&isdownloaded=" + isDownloaded;
+                //string encodedQueryString = HttpUtility.UrlEncode(queryString);
+                string FaxUrl = @"https://api.onlinefaxes.com/v2/fax/async/getfaxlist?" + queryString;
+
+                var request = WebRequest.Create(FaxUrl);
+                request.Headers.Add(oauthHeader);
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Method = "POST";
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] buffer = encoding.GetBytes(queryString);
+                request.ContentLength = buffer.Length;
+
+                using (var requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                using (var httpResponse = (HttpWebResponse)request.GetResponse())
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        var dataStream = httpResponse.GetResponseStream();
+                        var streamReader = new StreamReader(dataStream);
+                        var result = streamReader.ReadToEnd();
+
+                        JavaScriptSerializer parser = new JavaScriptSerializer();
+
+                        var data = result;
+                        Console.WriteLine("List of Fax under Folder Sent Box ({0}): \n {1} ", folderId, data);
+                        Console.WriteLine("Please strike any key");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Internal Server Error");
+                        Console.ReadLine();
+                    }
+
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Access Token is not valid. Please try again or get access token with valid Id");
+                Console.ReadLine();
+            }
+
+        }
+
+
+
     }
 }

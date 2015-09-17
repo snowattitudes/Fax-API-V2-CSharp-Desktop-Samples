@@ -82,4 +82,15 @@ namespace FaxAPI_CSharpConsole
         public string Name { get; set; }
         public string FaxNumber { get; set; }
     }
+
+    public class ResponseStatus
+    {
+        public string Status { get; set; }
+    }
+
+    public class DeleteStatus
+    {
+        public int Id { get; set; }
+        public string Status { get; set; }
+    }
 }

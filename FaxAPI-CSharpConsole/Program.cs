@@ -18,12 +18,12 @@ namespace FaxAPI_CSharpConsole
             var faxSimpleModel = new FaxOperations();
             var faxCompleModel = new FaxOperations();
 
-            //Console.WriteLine("Sending Fax Simple Model ...");
-            //faxSimpleModel.SendFaxSimpleModel();
-            //Console.WriteLine("Enter any key to Send Fax Complex Model");
-            //Console.ReadLine();
-            //Console.WriteLine("Sending Fax Complex Model ...");
-            //faxCompleModel.SendFaxComplexModel();
+            Console.WriteLine("Sending Fax Simple Model ...");
+            faxSimpleModel.SendFaxSimpleModel();
+            Console.WriteLine("Enter any key to Send Fax Complex Model");
+            Console.ReadLine();
+            Console.WriteLine("Sending Fax Complex Model ...");
+            faxCompleModel.SendFaxComplexModel();
             Console.WriteLine("Enter any key to Get Fax Status, Detail, and Download Path");
             Console.ReadLine();
             Console.WriteLine("Get Fax Status ...");

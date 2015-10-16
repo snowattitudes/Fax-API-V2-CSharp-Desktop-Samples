@@ -77,7 +77,7 @@ namespace FaxAPI_CSharpConsole
                     //add System.Web.Extensions
                     JavaScriptSerializer parser = new JavaScriptSerializer();
                     var response = parser.Deserialize<SendFaxResponse>(result);
-                    Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", response.m_Item1, response.m_Item2);
+                    Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", response.Item1, response.Item2);
                     Console.WriteLine("Please strike any key");
                     Console.ReadLine();
                 }
@@ -174,7 +174,7 @@ namespace FaxAPI_CSharpConsole
                     //add System.Web.Extensions
 
                     var response = parser.Deserialize<SendFaxResponse>(result);
-                    Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", response.m_Item1, response.m_Item2);
+                    Console.WriteLine("Fax sent with status : {0} and fax id of {1} ", response.Item1, response.Item2);
                     Console.WriteLine("Please strike any key");
                     Console.ReadLine();
                 }

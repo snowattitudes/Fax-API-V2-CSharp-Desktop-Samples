@@ -63,8 +63,8 @@ namespace FaxAPI_CSharpConsole
 
     public class SendFaxResponse
     {
-        public string m_Item1 { get; set; }
-        public string m_Item2 { get; set; }
+        public string Item1 { get; set; }
+        public string Item2 { get; set; }
     }
 
     public class SenderDetail
